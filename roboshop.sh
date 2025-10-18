@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dynamically fetch AMI ID from Community AMI
+# 🔍 Dynamically fetch AMI ID from Community AMI
 AMI_ID=$(aws ec2 describe-images \
   --owners 658775564324 \
   --filters "Name=name,Values=RHEL-9-DevOps-Practice" "Name=virtualization-type,Values=hvm" \
@@ -8,18 +8,18 @@ AMI_ID=$(aws ec2 describe-images \
   --output text)
 
 if [ "$AMI_ID" == "None" ] || [ -z "$AMI_ID" ]; then
-  echo "Failed to fetch AMI ID. Check if the AMI exists in your region."
+  echo "❌ Failed to fetch AMI ID. Check if the AMI exists in your region."
   exit 1
 fi
 
-# Configurable parameters
-SG_ID="sg-01c6441a49a9f3d18" # replace with your SG ID
-SUBNET_ID="subnet-0b439d8814bf5d584" # replace with your subnet
+# 🔧 Configurable parameters
+SG_ID="sg-01c6441a49a9f3d18"
+SUBNET_ID="subnet-0b439d8814bf5d584"
 INSTANCES=("mongodb" "redis" "mysql" "rabbitmq" "catalogue" "user" "cart" "shipping" "payment" "dispatch" "frontend")
-ZONE_ID="Z04937802OYFAGU4M6BTX" # replace with your hosted zone ID
-DOMAIN_NAME="trinath.online" # replace with your domain
+ZONE_ID="Z04937802OYFAGU4M6BTX"
+DOMAIN_NAME="trinath.online"
 
-# Launch and configure each instance
+# 🚀 Launch and configure each instance
 for instance in "${INSTANCES[@]}"
 do
   echo "Launching $instance..."
@@ -34,11 +34,15 @@ do
     --output text)
 
   if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
-    echo  "Failed to launch $instance. Skipping DNS record creation."
+    echo "❌ Failed to launch $instance. Skipping DNS record creation."
     continue
   fi
 
-  # Fetch IP address
+  # 🧠 Wait for instance to initialize
+  echo "Waiting for $instance to initialize..."
+  aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+
+  # 🌐 Fetch IP address
   if [ "$instance" != "frontend" ]; then
     IP=$(aws ec2 describe-instances \
       --instance-ids $INSTANCE_ID \
@@ -54,13 +58,13 @@ do
   fi
 
   if [ "$IP" == "None" ] || [ -z "$IP" ]; then
-    echo "Could not fetch IP for $instance. Skipping DNS record creation."
+    echo "⚠️ Could not fetch IP for $instance. Skipping DNS record creation."
     continue
   fi
 
   echo "$instance IP address: $IP"
 
-  #Create or update Route53 DNS record
+  # 🛠️ Create or update Route53 DNS record
   aws route53 change-resource-record-sets \
     --hosted-zone-id $ZONE_ID \
     --change-batch '{
