@@ -7,8 +7,7 @@ ZONE_ID="Z04937802OYFAGU4M6BTX" # replace with your ZONE ID
 DOMAIN_NAME="trinath.online" # replace with your domain
 SUBNET_ID="subnet-0b439d8814bf5d584" # replace with your Subnet ID
 
-for instance in ${INSTANCES[@]}
-#for instance in $@
+for instance in "${INSTANCES[@]}"
 do
 INSTANCE_ID=$(aws ec2 run-instances 
 --image-id "$AMI_ID" 
@@ -39,13 +38,13 @@ echo "$instance IP address: $IP"
 aws route53 change-resource-record-sets \
     --hosted-zone-id "$ZONE_ID" \
     --change-batch "{
-        \"Comment\": \"Creating or Updating a record set for cognito endpoint\",
+        \"Comment\": \"Creating or Updating record for $instance\",
         \"Changes\": [{
             \"Action\": \"UPSERT\",
             \"ResourceRecordSet\": {
                 \"Name\": \"$RECORD_NAME\",
                 \"Type\": \"A\",
-                \"TTL\": 1,
+                \"TTL\": 60,
                 \"ResourceRecords\": [{\"Value\": \"$IP\"}]
             }
         }]
