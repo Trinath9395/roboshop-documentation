@@ -5,6 +5,7 @@ SG_ID="sg-01c6441a49a9f3d18" # replace with your SG ID
 INSTANCES=("mongodb" "redis" "mysql" "rabbitmq" "catalogue" "user" "cart" "shipping" "payment" "dispatch" "frontend")
 ZONE_ID="Z04937802OYFAGU4M6BTX" # replace with your ZONE ID
 DOMAIN_NAME="trinath.online" # replace with your domain
+SUBNET_ID="subnet-0b439d8814bf5d584"
 
 for instance in ${INSTANCES[@]}
 #for instance in $@
